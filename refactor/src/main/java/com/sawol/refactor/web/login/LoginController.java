@@ -12,10 +12,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import java.util.Optional;
 
 @RestController
-@RequestMapping("/login")
 @RequiredArgsConstructor
 @Slf4j
 public class LoginController {
@@ -23,7 +21,7 @@ public class LoginController {
     private final LoginService loginService;
     private final MemberRepository memberRepository;
 
-    @PostMapping
+    @PostMapping("login")
     public String login(@Valid @ModelAttribute LoginDto loginDto, BindingResult bindingResult, HttpServletResponse response) {
         if (bindingResult.hasErrors()) {
             log.info("binding error {}", bindingResult);
@@ -52,5 +50,12 @@ public class LoginController {
 
         Member findMember = memberRepository.findById(memberId).orElse(null);
         return ResponseEntity.ok(findMember);
+    }
+
+    @PostMapping("/logout")
+    public void logout(HttpServletResponse response) {
+        Cookie cookie = new Cookie("memberId", null);
+        cookie.setMaxAge(0);        // 유효기간 0, 브라우저는 받자마자 쿠키를 종료함
+        response.addCookie(cookie);
     }
 }
